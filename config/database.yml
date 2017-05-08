@@ -5,21 +5,25 @@
 #   gem 'sqlite3'
 #
 default: &default
-  adapter: sqlite3
+  adapter: mysql2
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
+  host: <%= ENV.fetch('EGOSA_DB_HOST', 'localhost') %>
+  username: <%= ENV.fetch('EGOSA_DB_USERNAME', 'root') %>
+  password: <%= ENV.fetch('EGOSA_DB_PASSWORD', '') %>
+  socket: <%= ENV.fetch('EGOSA_DB_SOCKET', '') %>
 
 development:
   <<: *default
-  database: db/egosa_development.sqlite3
+  database: egosa_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: db/egosa_test.sqlite3
+  database: egosa_test
 
 production:
   <<: *default
-  database: db/egosa_production.sqlite3
+  database: egosa_production
