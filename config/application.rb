@@ -20,9 +20,8 @@ module Egosa
       g.javascripts false
       g.helper false
       g.jbuilder false
-      g.test_framework :rspec, routing_specs: false, request_specs: false, controller_specs: false, view_specs: false, helper_specs: false, fixture: true
+      g.test_framework :rspec, routing_specs: false, request_specs: false, controller_specs: false, view_specs: false, helper_specs: false, fixture: false
       g.integration_tool false
-      g.fixture_replacement :factory_girl, dir: "spec/factories"
     end
   end
 end
