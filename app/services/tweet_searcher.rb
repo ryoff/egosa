@@ -37,10 +37,13 @@ class TweetSearcher
         # @#{検索ワード} という文字列を含む場合は、検索ワードをつぶやいているのではなく、
         # 検索ワードをアカウント名に含むアカウントへのつぶやきである可能性が高いので、
         # tweet自体は保存して、since_idは更新するが、chat_serviceにはポストしない
-        next if tweet.full_text.include?("@#{@tweet_searcher_args.word}")
+        #
+        # 検索ワードは、 【hoge OR ほげ】や【hoge -ほげ】 など、様々なパターンが想定されるため
+        # 決め打ちで最初の１ワードのみを対象とする
+        next if tweet.full_text.include?("@#{@tweet_searcher_args.word.slice(/\A\w+/)}")
 
         # 同様に、user.screen_nameに含まれる場合も除く
-        next if tweet.user.screen_name.include?(@tweet_searcher_args.word)
+        next if tweet.user.screen_name.include?(@tweet_searcher_args.word.slice(/\A\w+/))
 
         if chat_service.valid?
           chat_service.post(tweet, @tweet_searcher_args.word)
