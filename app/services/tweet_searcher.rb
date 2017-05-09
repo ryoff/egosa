@@ -17,7 +17,7 @@ class TweetSearcher
     end
 
     def run!
-      twitter_client.search("#{@tweet_searcher_args.word} -RT", twitter_search_options).take(10).reverse.collect do |tweet|
+      twitter_client.search("#{@tweet_searcher_args.word} -rt", twitter_search_options).take(10).reverse.collect do |tweet|
         # すでにdbにあればskip
         next if Tweet.find_by_word_and_since_id(@tweet_searcher_args.word, tweet.id)
 
