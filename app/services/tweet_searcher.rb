@@ -17,7 +17,7 @@ class TweetSearcher
     end
 
     def run!
-      twitter_client.search("#{@tweet_searcher_args.word} -RT", twitter_search_options).take(2).reverse.collect do |tweet|
+      twitter_client.search("#{@tweet_searcher_args.word} -RT", twitter_search_options).take(10).reverse.collect do |tweet|
         # すでにdbにあればskip
         next if Tweet.find_by_word_and_since_id(@tweet_searcher_args.word, tweet.id)
 
@@ -33,6 +33,11 @@ class TweetSearcher
           uri:         tweet.uri.to_s,
           tweet_time:  tweet.created_at
         ).save!
+
+        # @#{検索ワード} という文字列を含む場合は、検索ワードをつぶやいているのではなく、
+        # 検索ワードをアカウント名に含むアカウントへのつぶやきである可能性が高いので、
+        # tweet自体は保存して、since_idは更新するが、chat_serviceにはポストしない
+        next if tweet.full_text.include?("@#{@tweet_searcher_args.word}")
 
         if chat_service.valid?
           chat_service.post(tweet, @tweet_searcher_args.word)
@@ -56,7 +61,7 @@ class TweetSearcher
     end
 
     def twitter_search_options
-      { lang: "ja", result_type: 'recent', since_id: Tweet.last_since_id(@tweet_searcher_args.word) }
+      { lang: 'ja', locale: 'ja', result_type: 'recent', since_id: Tweet.last_since_id(@tweet_searcher_args.word) }
     end
   end
 
