@@ -21,6 +21,11 @@ gem 'ridgepole'
 # ridgepole rake task
 gem 'ridgepole_rake'
 
+# twitter
+gem 'twitter'
+# chatwork
+gem 'chatwork'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
