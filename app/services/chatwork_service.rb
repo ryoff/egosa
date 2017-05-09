@@ -26,6 +26,6 @@ class ChatworkService
   private
 
   def message(tweet, search_word)
-    "[info][title]検索ワード【#{search_word}】[/title]#{tweet.full_text} [hr]@#{tweet.user.screen_name}\n#{tweet.uri.to_s} / #{tweet.created_at}[/info]"
+    "[info][title]検索ワード【#{search_word}】[/title]#{tweet.full_text} [hr]@#{tweet.user.screen_name}\n#{tweet.uri} / #{tweet.created_at}[/info]"
   end
 end
