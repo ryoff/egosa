@@ -1,5 +1,6 @@
 class ChatworkService
-  CHATWORK_API_TOKEN = ENV['CHATWORK_API_TOKEN']
+  CHATWORK_API_TOKEN   = ENV['CHATWORK_API_TOKEN']
+  CHATWORK_DEV_ROOM_ID = ENV['CHATWORK_DEV_ROOM_ID']
 
   include ActiveModel::Model
 
@@ -12,7 +13,7 @@ class ChatworkService
   validates :room_id, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 999_999_999 }
 
   def initialize(room_id)
-    @room_id = room_id
+    @room_id = Rails.env.production? ? room_id : CHATWORK_DEV_ROOM_ID
   end
 
   def post(tweet, search_word)
