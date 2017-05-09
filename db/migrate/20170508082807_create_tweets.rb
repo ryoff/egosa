@@ -11,6 +11,6 @@ class CreateTweets < ActiveRecord::Migration[5.1]
       t.timestamps
     end
 
-    add_index :tweets, :search_word, length: 10
+    add_index :tweets, :search_word, name: 'index_tweets_on_search_word', length: 10
   end
 end
