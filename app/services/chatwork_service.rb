@@ -26,11 +26,6 @@ class ChatworkService
   private
 
   def message(tweet, search_word)
-    replace_not_allowed_words("[info][title]検索ワード【#{search_word}】[/title]#{tweet.full_text} [hr]@#{tweet.user.screen_name}\n#{tweet.uri.to_s} / #{tweet.created_at}[/info]")
-  end
-
-  def replace_not_allowed_words(text)
-    # chatworkがunicodeに対応してないっぽいので、消す。
-    text.encode('SJIS', 'UTF-8', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8')
+    "[info][title]検索ワード【#{search_word}】[/title]#{tweet.full_text} [hr]@#{tweet.user.screen_name}\n#{tweet.uri.to_s} / #{tweet.created_at}[/info]"
   end
 end
