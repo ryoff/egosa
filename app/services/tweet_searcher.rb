@@ -39,6 +39,9 @@ class TweetSearcher
         # tweet自体は保存して、since_idは更新するが、chat_serviceにはポストしない
         next if tweet.full_text.include?("@#{@tweet_searcher_args.word}")
 
+        # 同様に、user.screen_nameに含まれる場合も除く
+        next if tweet.user.screen_name.include?(@tweet_searcher_args.word)
+
         if chat_service.valid?
           chat_service.post(tweet, @tweet_searcher_args.word)
         else
