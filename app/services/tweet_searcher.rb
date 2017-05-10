@@ -17,7 +17,7 @@ class TweetSearcher
     end
 
     def run!
-      twitter_client.search("#{@tweet_searcher_args.word} -rt", twitter_search_options).take(10).reverse.collect do |tweet|
+      twitter_client.search("#{@tweet_searcher_args.word} -rt #{@tweet_searcher_args.exclude_words_for_twitter_search_format}", twitter_search_options).take(10).reverse.collect do |tweet|
         # すでにdbにあればskip
         next if Tweet.find_by_word_and_since_id(@tweet_searcher_args.word, tweet.id)
 
@@ -34,16 +34,24 @@ class TweetSearcher
           tweet_time:  tweet.created_at
         ).save!
 
-        # @#{検索ワード} という文字列を含む場合は、検索ワードをつぶやいているのではなく、
-        # 検索ワードをアカウント名に含むアカウントへのつぶやきである可能性が高いので、
+        # full_text内に除外ワードを含むtweetはポストしない
+        next if @tweet_searcher_args.exclude_words.any? { |exclude_word| tweet.full_text.include?(exclude_word) }
+
+        # 同様に、user.screen_nameに含まれる場合も除く
+        next if @tweet_searcher_args.exclude_words.any? { |exclude_word| tweet.user.screen_name.include?(exclude_word) }
+
+        # ユーザ名に @#{検索ワード} という文字列を含む場合は、検索ワードをつぶやいているのではなく、
+        # 検索ワードをアカウント名に含むアカウントのつぶやきである可能性が高いので、
         # tweet自体は保存して、since_idは更新するが、chat_serviceにはポストしない
         #
         # 検索ワードは、 【hoge OR ほげ】や【hoge -ほげ】 など、様々なパターンが想定されるため
         # 決め打ちで最初の１ワードのみを対象とする
-        next if tweet.full_text.include?("@#{@tweet_searcher_args.word.slice(/\A\w+/)}")
+        first_search_word = @tweet_searcher_args.word.slice(/\A\w+/)
+        next if tweet.user.screen_name.include?(first_search_word)
 
-        # 同様に、user.screen_nameに含まれる場合も除く
-        next if tweet.user.screen_name.include?(@tweet_searcher_args.word.slice(/\A\w+/))
+        # 同様に本文の最初が、 @***検索ワード** のようなパターンも除外する
+        # 検索ワードがアカウント名に含まれるユーザに対する単なるRTである可能性が高い
+        next if tweet.full_text.match?(/\A@\w*#{first_search_word}\w*/)
 
         if chat_service.valid?
           chat_service.post(tweet, @tweet_searcher_args.word)
@@ -74,7 +82,7 @@ class TweetSearcher
   class Args
     include ActiveModel::Model
 
-    attr_reader :word, :chat_service, :room_id
+    attr_reader :word, :chat_service, :room_id, :exclude_words
 
     validates :word,         presence: true, length: { maximum: 50 }
     validates :chat_service, inclusion: { in: %w( slack chatwork ) }
@@ -83,9 +91,16 @@ class TweetSearcher
     # args is
     #   #<Rake::TaskArguments word: word, chat_service: chat, room_id: room_id>
     def initialize(args)
-      @word         = args[:word]
-      @chat_service = args[:chat_service]
-      @room_id      = args[:room_id]
+      @word          = args[:word]
+      @chat_service  = args[:chat_service]
+      @room_id       = args[:room_id]
+      @exclude_words = args[:exclude_word]&.split('|') || []
+    end
+
+    def exclude_words_for_twitter_search_format
+      # "['hoge', 'fuga']
+      # -> "-hoge -fuga"
+      @exclude_words.map { |exclude_word| "-#{exclude_word}" }.join(' ')
     end
   end
 end
