@@ -51,7 +51,7 @@ class TweetSearcher
 
         # 同様に本文の最初が、 @***検索ワード** のようなパターンも除外する
         # 検索ワードがアカウント名に含まれるユーザに対する単なるRTである可能性が高い
-        next if tweet.full_text.match?(/\A@\w*#{first_search_word}\w*/)
+        next if tweet.full_text.match?(/\A@\w*#{first_search_word}\w*/i)
 
         if chat_service.valid?
           chat_service.post(tweet, @tweet_searcher_args.word)
