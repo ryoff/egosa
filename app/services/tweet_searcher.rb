@@ -75,7 +75,7 @@ class TweetSearcher
     end
 
     def twitter_search_options
-      { lang: 'ja', locale: 'ja', result_type: 'recent', since_id: Tweet.last_since_id(@tweet_searcher_args.word) }
+      { lang: 'ja', locale: 'ja', result_type: 'recent', exclude: 'retweets', since_id: Tweet.last_since_id(@tweet_searcher_args.word) }
     end
   end
 
