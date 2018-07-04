@@ -47,7 +47,7 @@ class TweetSearcher
         # 検索ワードは、 【hoge OR ほげ】や【hoge -ほげ】 など、様々なパターンが想定されるため
         # 決め打ちで最初の１ワードのみを対象とする
         first_search_word = @tweet_searcher_args.word.split.first
-        next if tweet.user.screen_name.include?(first_search_word)
+        next if tweet.user.screen_name.downcase.include?(first_search_word.downcase)
 
         # 同様に本文の最初が、 @***検索ワード** のようなパターンも除外する
         # 検索ワードがアカウント名に含まれるユーザに対する単なるRTである可能性が高い
